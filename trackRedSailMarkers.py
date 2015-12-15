@@ -5,7 +5,7 @@ import pprint
 import time
 import math
 
-filename = 'Data1/t2.mp4'
+filename = 'Data1/t4.mp4'
 
 numberErrorsBk = 0
 centerBk = 0; radiusBk = 0
@@ -42,7 +42,7 @@ def colorImgPreProcess(image):
     OUTPUT: returns a RGB image which has been filtered and looks nicer.
     """
     #do processing on the image while it's still in color
-    image = cv2.medianBlur(image, 7)  #kernal size must be odd
+    image = cv2.medianBlur(image, 3)  #kernal size must be odd
     #image = cv2.bilateralFilter(image, 9, 75, 75) #TODO: uncomment when it won't cause C++ errors with ROS
     #self.closeImages() #uncomment if showing output image
     return image
@@ -51,7 +51,7 @@ def colorImgPreProcess(image):
 def make_image_mask_green(img):
     # B G R
     lower_blue = np.array([10,70,10],  dtype=np.uint8)# np.array([60,30,55])
-    upper_blue = np.array([230,250,60],  dtype=np.uint8)
+    upper_blue = np.array([150,250,60],  dtype=np.uint8)
     
     # Threshold the HSV image to get only blue colors
     img = colorImgPreProcess(img)
@@ -103,9 +103,9 @@ def get_red_circle(frame):
 
         else:
             numberErrors = numberErrors + 1
-            print 'Current number of front error frames is: ', numberErrorsFt, ' Out of: ', frameNum
-            print 'Front percent error is: ', float(numberErrors)/frameNum
-            cv2.circle(side_mask, centerFt, radiusFt, np.array([0,255,0]), 10)
+            #print 'Current number of front error frames is: ', numberErrorsFt, ' Out of: ', frameNum
+            #print 'Front percent error is: ', 100*float(numberErrors)/frameNum
+            #cv2.circle(side_mask, centerFt, radiusFt, np.array([0,255,0]), 10)
 
 
 
@@ -135,9 +135,9 @@ def get_green_circle(frame):
 
         else:
             numberErrorsBk = numberErrorsBk + 1
-            print 'Current number of back error frames is: ', numberErrorsBk, ' Out of: ', frameNum
-            print 'Back percent error is: ', float(numberErrorsBk)/frameNum
-            cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
+            #print 'Current number of back error frames is: ', numberErrorsBk, ' Out of: ', frameNum
+            #print 'Back percent error is: ', 100*float(numberErrorsBk)/frameNum
+            #cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
             #cv2.imshow('mask', side_mask)
         #cv2.imshow('mask', side_mask)
 #            return 0, 0
@@ -185,7 +185,14 @@ while(cap.isOpened()):
 #        #bkDegrees = [ for i in centerArrayX]
 #        f = np.vectorize(posToTheta, otypes=[np.float])
 #        bkDegrees = f(centerArrayX)  # if A is your Numpy array
-        
+
+        ##Display sumary stats: 
+        print 'SUMMARY: '
+        print 'Back flag: ', numberErrorsBk, ' errors out of ', frameNum
+        print '   ', 100*float(numberErrorsBk)/frameNum, ' % frames without a circle found'
+        print 'Front flag: ', numberErrorsFt, ' errors out of ', frameNum
+        print '   ', 100*float(numberErrorsFt)/frameNum, ' % frames without a circle found'
+                
         ##Plot data!:
         plt.plot(centerArrayX, label = 'Back Flag Angle', color='#AA3C39', linewidth=6)
         plt.plot(centerArrayA, label = 'Front Flag Angle', color='#7A9E35', linewidth=6)
@@ -194,6 +201,8 @@ while(cap.isOpened()):
         plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
         plt.legend()
         plt.show()
+        
+        break
 
 cap.release()
 #cv2.destroyAllWindows()
