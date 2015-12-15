@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pprint
 
-filename = 'Transport TestFlutter0.mp4'
+filename = 'Data1/t2.mp4'
 
 numberErrors = 0
 centerP = 0; radiusP = 0;
@@ -51,10 +51,9 @@ def get_circle(frame):
             center = (int(x),int(y))
             radius = int(radius)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
-            #cv2.circle(side_mask, (447,63), 63, (0,0,255), -1)
             
-            #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
-            #cv2.imshow('mask', side_mask)
+            cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
+            cv2.imshow('mask', side_mask)
             #print 'center: ', center, 'radius: ', radius, ' found from side camera'
             
 #            return center, radius
@@ -89,7 +88,7 @@ while(cap.isOpened()):
         break
     frameNum =frameNum + 1
     ##print 'Frame num is: ', frameNum
-    if frameNum > 273:
+    if frameNum == cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):#frameNum > 273:
         #pprint.pprint(centerArray)
         plt.plot(centerArrayX, label = 'X marker positon', color='#AA3C39', linewidth=6)
         plt.plot(centerArrayY, label = 'Y marker positon', color='#7A9E35', linewidth=6)
