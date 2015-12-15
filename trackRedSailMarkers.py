@@ -3,13 +3,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pprint
 import time
+import math
 
 filename = 'Data1/t2.mp4'
 
 numberErrors = 0
 centerP = 0; radiusP = 0;
 frameNum = 0
-centerArrayX = []; centerArrayY = []
+Lbk = 240 #length of back flag, in pixels
+centerArrayA = []; centerArrayB = [] ## Front Flag (red marker)
+centerArrayX = []; centerArrayY = [] ## Back Flag (green marker)
+thetaFlagFt = []; thetaFlagbk = []; 
+
+def posToTheta(i):
+    angle = math.acos( (Lbk - (max(centerArrayX) - i) )/Lbk )
+    print angle
+    return angle
+
+
+def reject_outliers(data, m=2):
+    """ From: 
+    http://stackoverflow.com/questions/11686720/is-there-a-numpy-builtin-to-reject-outliers-from-a-list
+    """
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 
 def colorImgPreProcess(image):
@@ -80,8 +96,10 @@ def get_circle(frame):
             radius = int(radius)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
-            cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
-            cv2.imshow('mask', side_mask)
+            #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
+            #cv2.rectangle(frame,center,(center[0]+240,center[1]+40),(0,255,0),3)
+            #cv2.imshow('mask', frame)#side_mask)
+            #cv2.imshow('mask', side_mask)
             #print 'center: ', center, 'radius: ', radius, ' found from side camera'
             
 #            return center, radius
@@ -91,7 +109,6 @@ def get_circle(frame):
             print 'Current number of error frames is: ', numberErrors, ' Out of: ', frameNum
             print 'percent error is: ', float(numberErrors)/frameNum
             cv2.circle(side_mask, center, radius, np.array([0,255,0]), 10)
-            #cv2.imshow('mask', frame)#side_mask)
             #cv2.imshow('mask', side_mask)
             time.sleep(.2)
         #cv2.imshow('mask', side_mask)
@@ -120,9 +137,22 @@ while(cap.isOpened()):
         break
     frameNum =frameNum + 1
     ##print 'Frame num is: ', frameNum
-    if frameNum == cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
-        plt.plot(centerArrayX, label = 'X marker positon', color='#AA3C39', linewidth=6)
-        plt.plot(centerArrayY, label = 'Y marker positon', color='#7A9E35', linewidth=6)
+    if frameNum >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)/20:
+        plt.plot(centerArrayX, label='1')
+        ##Filter out extreme values: 
+#        centerArrayX = np.array(centerArrayX)
+#        plt.plot(centerArrayX, label='2')
+#        centerArrayX = reject_outliers(centerArrayX)
+#        plt.plot(centerArrayX, label='3')
+#        
+#        ##Convert to angle:
+#        #bkDegrees = [ for i in centerArrayX]
+#        f = np.vectorize(posToTheta, otypes=[np.float])
+#        bkDegrees = f(centerArrayX)  # if A is your Numpy array
+        
+        ##Plot data!:
+        plt.plot(centerArrayX, label = 'Back Flag Angle', color='#AA3C39', linewidth=6)
+#        plt.plot(centerArrayY, label = 'Y marker positon', color='#7A9E35', linewidth=6)
         plt.xlabel('Time', fontsize = 18)
         plt.ylabel('Pixel Position', fontsize = 18)
         plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
