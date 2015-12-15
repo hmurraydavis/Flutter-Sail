@@ -100,18 +100,12 @@ def get_red_circle(frame):
             #cv2.rectangle(frame,center,(center[0]+240,center[1]+40),(0,255,0),3)
             #cv2.imshow('mask', frame)#side_mask)
             #cv2.imshow('mask', side_mask)
-            #print 'center: ', center, 'radius: ', radius, ' found from side camera'
-            
-#            return center, radius
 
         else:
             numberErrors = numberErrors + 1
             print 'Current number of front error frames is: ', numberErrorsFt, ' Out of: ', frameNum
             print 'Front percent error is: ', float(numberErrors)/frameNum
-            cv2.circle(side_mask, center, radius, np.array([0,255,0]), 10)
-            #cv2.imshow('mask', side_mask)
-        #cv2.imshow('mask', side_mask)
-#            return 0, 0
+            cv2.circle(side_mask, centerFt, radiusFt, np.array([0,255,0]), 10)
 
 
 
@@ -141,8 +135,8 @@ def get_green_circle(frame):
 
         else:
             numberErrorsBk = numberErrorsBk + 1
-            print 'Current number of error frames is: ', numberErrorsBk, ' Out of: ', frameNum
-            print 'percent error is: ', float(numberErrorsBk)/frameNum
+            print 'Current number of back error frames is: ', numberErrorsBk, ' Out of: ', frameNum
+            print 'Back percent error is: ', float(numberErrorsBk)/frameNum
             cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
             #cv2.imshow('mask', side_mask)
         #cv2.imshow('mask', side_mask)
@@ -157,6 +151,8 @@ while(cap.isOpened()):
     ret, frame = cap.read()
     get_green_circle(frame)
     centerPBk, radiusPBk = centerBk, radiusBk
+    get_red_circle(frame)
+    centerPFt, radiusPFt = centerFt, radiusFt
     
     if centerBk: 
         centerArrayX.append(centerBk[0])
@@ -165,13 +161,19 @@ while(cap.isOpened()):
         'In P block. centerP is: ', centerPBk
         centerArrayX.append(centerPBk[0])
         centerArrayY.append(centerPBk[1])
+    if centerFt:
+        centerArrayA.append(centerFt[0])
+        centerArrayB.append(centerFt[1])
+    else: 
+        centerArrayA.append(centerPFt[0])
+        centerArrayB.append(centerPFt[1])        
 
     #cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     frameNum =frameNum + 1
     ##print 'Frame num is: ', frameNum
-    if frameNum >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)/20:
+    if frameNum >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
         plt.plot(centerArrayX, label='1')
         ##Filter out extreme values: 
 #        centerArrayX = np.array(centerArrayX)
@@ -186,9 +188,9 @@ while(cap.isOpened()):
         
         ##Plot data!:
         plt.plot(centerArrayX, label = 'Back Flag Angle', color='#AA3C39', linewidth=6)
-#        plt.plot(centerArrayY, label = 'Y marker positon', color='#7A9E35', linewidth=6)
-        plt.xlabel('Time', fontsize = 18)
-        plt.ylabel('Pixel Position', fontsize = 18)
+        plt.plot(centerArrayA, label = 'Front Flag Angle', color='#7A9E35', linewidth=6)
+        plt.xlabel('Image Frame #', fontsize = 18)
+        plt.ylabel('Angle (degrees)', fontsize = 18)
         plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
         plt.legend()
         plt.show()
