@@ -12,9 +12,40 @@ frameNum = 0
 centerArrayX = []; centerArrayY = []
 
 
+def colorImgPreProcess(image):
+    """
+    Prepare images to be analyzed in binary form by appling generic filtering.
+    This makes them easier to work with and the resulting image less noisy.
+    
+    INPUT: image for pre-processing. Should be in color, though b&w should work.
+    OUTPUT: returns a RGB image which has been filtered and looks nicer.
+    """
+    #do processing on the image while it's still in color
+    image = cv2.medianBlur(image, 7)  #kernal size must be odd
+    #image = cv2.bilateralFilter(image, 9, 75, 75) #TODO: uncomment when it won't cause C++ errors with ROS
+    #self.closeImages() #uncomment if showing output image
+    return image
+
+
+def make_image_mask_green(img):
+    # B G R
+    lower_blue = np.array([10,70,10],  dtype=np.uint8)# np.array([60,30,55])
+    upper_blue = np.array([230,250,60],  dtype=np.uint8)
+    
+    # Threshold the HSV image to get only blue colors
+    img = colorImgPreProcess(img)
+    try:
+        thresh = cv2.inRange(img, lower_blue, upper_blue)
+        #cv2.imshow('mask', thresh)
+        return thresh
+    except:
+        print "Fatal inRange error!"
+        return ''
+
+
 def make_image_mask_red(img):
     # B G R
-    lower_blue = np.array([23,0,100],  dtype=np.uint8)# np.array([60,30,55])
+    lower_blue = np.array([23,0,80],  dtype=np.uint8)# np.array([60,30,55])
     upper_blue = np.array([100,80,255],  dtype=np.uint8)
     
     # Threshold the HSV image to get only blue colors
@@ -34,7 +65,8 @@ def get_circle(frame):
     global radius
     
     ##print 'b4 mask'
-    side_mask = make_image_mask_red(frame)
+    #side_mask = make_image_mask_red(frame)
+    side_mask = make_image_mask_green(frame)
     ##print 'made mask'
     if type(side_mask) != type(''):
         contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -49,7 +81,7 @@ def get_circle(frame):
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
             cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
-            
+            cv2.imshow('mask', side_mask)
             #print 'center: ', center, 'radius: ', radius, ' found from side camera'
             
 #            return center, radius
@@ -62,7 +94,7 @@ def get_circle(frame):
             #cv2.imshow('mask', frame)#side_mask)
             #cv2.imshow('mask', side_mask)
             time.sleep(.2)
-        cv2.imshow('mask', side_mask)
+        #cv2.imshow('mask', side_mask)
 #            return 0, 0
 
 
