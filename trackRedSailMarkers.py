@@ -7,9 +7,14 @@ import math
 
 filename = 'Data1/t2.mp4'
 
-numberErrors = 0
-centerP = 0; radiusP = 0;
+numberErrorsBk = 0
+centerBk = 0; radiusBk = 0
+centerPBk = 0; radiusPBk = 0;
+numberErrorsFt = 0
+centerPFt = 0; radiusPFt = 0;
+
 frameNum = 0
+
 Lbk = 240 #length of back flag, in pixels
 centerArrayA = []; centerArrayB = [] ## Front Flag (red marker)
 centerArrayX = []; centerArrayY = [] ## Back Flag (green marker)
@@ -75,25 +80,20 @@ def make_image_mask_red(img):
     
     
 
-def get_circle(frame): 
-    global numberErrors
-    global center
-    global radius
+def get_red_circle(frame): 
+    global numberErrorsFt
+    global centerFt
+    global radiusFt
     
-    ##print 'b4 mask'
-    #side_mask = make_image_mask_red(frame)
-    side_mask = make_image_mask_green(frame)
-    ##print 'made mask'
+    side_mask = make_image_mask_red(frame)
     if type(side_mask) != type(''):
-        contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        ##print 'found contrs'
-        
+        contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)        
 
         if len(contours):
             cnt = contours[0]
-            (x,y),radius = cv2.minEnclosingCircle(cnt)
-            center = (int(x),int(y))
-            radius = int(radius)
+            (x,y),radiusFt = cv2.minEnclosingCircle(cnt)
+            centerFt = (int(x),int(y))
+            radiusFt = int(radiusFt)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
             #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
@@ -106,11 +106,45 @@ def get_circle(frame):
 
         else:
             numberErrors = numberErrors + 1
-            print 'Current number of error frames is: ', numberErrors, ' Out of: ', frameNum
-            print 'percent error is: ', float(numberErrors)/frameNum
+            print 'Current number of front error frames is: ', numberErrorsFt, ' Out of: ', frameNum
+            print 'Front percent error is: ', float(numberErrors)/frameNum
             cv2.circle(side_mask, center, radius, np.array([0,255,0]), 10)
             #cv2.imshow('mask', side_mask)
-            time.sleep(.2)
+        #cv2.imshow('mask', side_mask)
+#            return 0, 0
+
+
+
+def get_green_circle(frame): 
+    global numberErrorsBk
+    global centerBk
+    global radiusBk
+    
+    side_mask = make_image_mask_green(frame)
+    if type(side_mask) != type(''):
+        contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours):
+            cnt = contours[0]
+            (x,y),radiusBk = cv2.minEnclosingCircle(cnt)
+            centerBk = (int(x),int(y))
+            radiusBk = int(radiusBk)
+            side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
+            
+            #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
+            #cv2.rectangle(frame,center,(center[0]+240,center[1]+40),(0,255,0),3)
+            #cv2.imshow('mask', frame)#side_mask)
+            #cv2.imshow('mask', side_mask)
+            #print 'center: ', center, 'radius: ', radius, ' found from side camera'
+            
+#            return center, radius
+
+        else:
+            numberErrorsBk = numberErrorsBk + 1
+            print 'Current number of error frames is: ', numberErrorsBk, ' Out of: ', frameNum
+            print 'percent error is: ', float(numberErrorsBk)/frameNum
+            cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
+            #cv2.imshow('mask', side_mask)
         #cv2.imshow('mask', side_mask)
 #            return 0, 0
 
@@ -121,16 +155,16 @@ cap = cv2.VideoCapture(filename)
 
 while(cap.isOpened()):
     ret, frame = cap.read()
-    get_circle(frame)
-    centerP, radiusP = center, radius
+    get_green_circle(frame)
+    centerPBk, radiusPBk = centerBk, radiusBk
     
-    if center: 
-        centerArrayX.append(center[0])
-        centerArrayY.append(center[1])
+    if centerBk: 
+        centerArrayX.append(centerBk[0])
+        centerArrayY.append(centerBk[1])
     else: 
-        'In P block. centerP is: ', centerP
-        centerArrayX.append(centerP[0])
-        centerArrayY.append(centerP[1])
+        'In P block. centerP is: ', centerPBk
+        centerArrayX.append(centerPBk[0])
+        centerArrayY.append(centerPBk[1])
 
     #cv2.imshow('frame',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
