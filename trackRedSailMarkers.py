@@ -12,7 +12,7 @@ frameNum = 0
 centerArrayX = []; centerArrayY = []
 
 
-def make_image_mask(img):
+def make_image_mask_red(img):
     # B G R
     lower_blue = np.array([23,0,100],  dtype=np.uint8)# np.array([60,30,55])
     upper_blue = np.array([100,80,255],  dtype=np.uint8)
@@ -34,7 +34,7 @@ def get_circle(frame):
     global radius
     
     ##print 'b4 mask'
-    side_mask = make_image_mask(frame)
+    side_mask = make_image_mask_red(frame)
     ##print 'made mask'
     if type(side_mask) != type(''):
         contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
