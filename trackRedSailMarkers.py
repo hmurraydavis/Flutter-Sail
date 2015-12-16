@@ -177,13 +177,40 @@ def findBkFlagMarker(img):
         centerArrayY.append(centerPBk[1])
         
         
-        
+def printSummaryStats():
+    '''Display sumary stats: '''
+    print 'SUMMARY: '
+    print 'Back flag: ', numberErrorsBk, ' errors out of ', frameNum
+    print '   ', 100*float(numberErrorsBk)/frameNum, ' % frames without a circle found'
+    print 'Front flag: ', numberErrorsFt, ' errors out of ', frameNum
+    print '   ', 100*float(numberErrorsFt)/frameNum, ' % frames without a circle found'  
+    
+          
+def plotBothFlagPositions():
+    ##Plot data!:
+    plt.plot(centerArrayX, centerArrayY, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
+    plt.plot(centerArrayA, centerArrayB, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
+    plt.xlabel('Image Frame #', fontsize = 18)
+    plt.ylabel('Angle (degrees)', fontsize = 18)
+    plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+    plt.legend()
+    plt.show()
+    
+def plotXXPositions():
+    plt.plot(centerArrayA, centerArrayX, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+    plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
+    plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
+    plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+    plt.legend()
+    plt.show()
+
 ##Open Video file:
 cap = cv2.VideoCapture(filename) 
 
 while(cap.isOpened()):
     ret, frame = cap.read()
     findFtFlagMarker(frame)
+    
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     frameNum =frameNum + 1
@@ -194,33 +221,12 @@ while(cap.isOpened()):
 #        plt.plot(centerArrayX, label='2')
 #        centerArrayX = reject_outliers(centerArrayX)
 #        plt.plot(centerArrayX, label='3')
-#        
-#        ##Convert to angle:
-#        #bkDegrees = [ for i in centerArrayX]
-#        f = np.vectorize(posToTheta, otypes=[np.float])
-#        bkDegrees = f(centerArrayX)  # if A is your Numpy array
 
-        ##Display sumary stats: 
-        print 'SUMMARY: '
-        print 'Back flag: ', numberErrorsBk, ' errors out of ', frameNum
-        print '   ', 100*float(numberErrorsBk)/frameNum, ' % frames without a circle found'
-        print 'Front flag: ', numberErrorsFt, ' errors out of ', frameNum
-        print '   ', 100*float(numberErrorsFt)/frameNum, ' % frames without a circle found'
-                
-        ##Plot data!:
-        plt.plot(centerArrayX, centerArrayY, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
-        plt.plot(centerArrayA, centerArrayB, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
-        plt.xlabel('Image Frame #', fontsize = 18)
-        plt.ylabel('Angle (degrees)', fontsize = 18)
-        plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
-        
-##        plt.plot(centerArrayA, centerArrayX, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
-##        plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
-##        plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
-##        plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
-        plt.legend()
-        plt.show()
-        
+
+        printSummaryStats()
+        #plotBothFlagPositions()
+        #plotXXPositions()
+
         break
 
 cap.release()
