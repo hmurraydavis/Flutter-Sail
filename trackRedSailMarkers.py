@@ -23,15 +23,39 @@ thetaFlagFt = []; thetaFlagbk = [];
 
 def nothing(x):
     pass
+    
+hlg = 0
+slg = 37
+vlg = 60
+hhg = 142
+shg = 190
+vhg = 135  
+
+
+hlr = 100
+slr = 0
+vlr = 0
+hhr = 255
+shr = 255
+vhr = 255
 
 cv2.namedWindow('greenHSVMask')
 # create trackbars for color change
-cv2.createTrackbar('H_low_green','greenHSVMask',0,255,nothing)
-cv2.createTrackbar('S_low_green','greenHSVMask',0,255,nothing)
-cv2.createTrackbar('V_low_green','greenHSVMask',0,255,nothing)
-cv2.createTrackbar('H_high_green','greenHSVMask',0,255,nothing)
-cv2.createTrackbar('S_high_green','greenHSVMask',0,255,nothing)
-cv2.createTrackbar('V_high_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('H_low_green','greenHSVMask',hlg,180,nothing)
+cv2.createTrackbar('S_low_green','greenHSVMask',slg,255,nothing)
+cv2.createTrackbar('V_low_green','greenHSVMask',vlg,255,nothing)
+cv2.createTrackbar('H_high_green','greenHSVMask',hhg,180,nothing)
+cv2.createTrackbar('S_high_green','greenHSVMask',shg,255,nothing)
+cv2.createTrackbar('V_high_green','greenHSVMask',vhg,255,nothing)
+
+cv2.namedWindow('redHSVMask')
+# create trackbars for color change
+cv2.createTrackbar('H_low_red','redHSVMask',hlr,180,nothing)
+cv2.createTrackbar('S_low_red','redHSVMask',slr,255,nothing)
+cv2.createTrackbar('V_low_red','redHSVMask',vlr,255,nothing)
+cv2.createTrackbar('H_high_red','redHSVMask',hhr,180,nothing)
+cv2.createTrackbar('S_high_red','redHSVMask',shr,255,nothing)
+cv2.createTrackbar('V_high_red','redHSVMask',vhr,255,nothing)
 
 def posToTheta(i):
     angle = math.acos( (Lbk - (max(centerArrayX) - i) )/Lbk )
@@ -71,10 +95,6 @@ def make_image_mask_green(img, a=40, b=10, c=10, d=80, e=200, f=255):
     # Threshold the HSV image to get only blue colors
     img = colorImgPreProcess(hsv_img)
     
-    # sensitivity is a int, typically set to 15 - 20 
-    greenSensitivity = 20
-#    lower_bound = np.array([60 - greenSensitivity, 10, 10],  dtype=np.uint8)
-#    upper_bound = np.array([60 + greenSensitivity, 200, 255],  dtype=np.uint8)
     lower_bound = np.array([a, b, c],  dtype=np.uint8)
     upper_bound = np.array([d, e, f],  dtype=np.uint8)
     print 'upper_bound: ', upper_bound
@@ -82,15 +102,32 @@ def make_image_mask_green(img, a=40, b=10, c=10, d=80, e=200, f=255):
 
     try:
         thresh = cv2.inRange(img, lower_bound, upper_bound)
-        cv2.imshow('mask', thresh)
-        cv.ResizeWindow('mask', 60, 60)
+        #cv2.imshow('green mask', thresh)
         return thresh
     except:
-        print "Fatal inRange error!"
+        print "Fatal inRange error in make_image_mask_green!"
+        return ''
+        
+
+def make_image_mask_red(img, a=40, b=10, c=10, d=80, e=200, f=255):
+    hsv_img = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    img = colorImgPreProcess(hsv_img)
+
+    lower_bound = np.array([a, b, c],  dtype=np.uint8)
+    upper_bound = np.array([d, e, f],  dtype=np.uint8)
+    print 'red lower bound: ', lower_bound
+    print 'red upper bound: ', upper_bound
+
+    try:
+        thresh = cv2.inRange(img, lower_bound, upper_bound)
+        #cv2.imshow('Red Mask', thresh)
+        return thresh
+    except:
+        print "Fatal inRange error in make_image_mask_red!"
         return ''
 
 
-def make_image_mask_red(img):
+def make_image_mask_red_RGB(img):
     # B G R
     lower_blue = np.array([23,0,80],  dtype=np.uint8)# np.array([60,30,55])
     upper_blue = np.array([100,80,255],  dtype=np.uint8)
@@ -98,20 +135,20 @@ def make_image_mask_red(img):
     # Threshold the HSV image to get only blue colors
     try:
         thresh = cv2.inRange(img, lower_blue, upper_blue)
-        #cv2.imshow('mask', thresh)
+        #cv2.imshow('Red RGB mask', thresh)
         return thresh
     except:
-        print "Fatal inRange error!"
+        print "Fatal inRange error in make_image_mask_red_RGB!"
         return ''
     
     
 
-def get_red_circle(frame): 
+def get_red_circle(frame, hlr, slr, vlr, hhr, shr, vhr): 
     global numberErrorsFt
     global centerFt
     global radiusFt
     
-    side_mask = make_image_mask_red(frame)
+    side_mask = make_image_mask_red(frame, hlr, slr, vlr, hhr, shr, vhr)
     if type(side_mask) != type(''):
         contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)        
 
@@ -122,10 +159,8 @@ def get_red_circle(frame):
             radiusFt = int(radiusFt)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
-            #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
-            #cv2.rectangle(frame,center,(center[0]+240,center[1]+40),(0,255,0),3)
-            #cv2.imshow('mask', frame)#side_mask)
-            #cv2.imshow('mask', side_mask)
+            cv2.circle(side_mask, centerFt, radiusFt, np.array([0,0,255]), 10)
+            cv2.imshow('Red mask', side_mask)
 
         else:
             numberErrors = numberErrors + 1
@@ -135,12 +170,12 @@ def get_red_circle(frame):
 
 
 
-def get_green_circle(frame): 
+def get_green_circle(frame, hlg, slg, vlg, hhg, shg, vhg): 
     global numberErrorsBk
     global centerBk
     global radiusBk
     
-    side_mask = make_image_mask_green(frame)
+    side_mask = make_image_mask_green(frame, hlg, slg, vlg, hhg, shg, vhg) #
     if type(side_mask) != type(''):
         contours, hierarchy = cv2.findContours(side_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -151,22 +186,16 @@ def get_green_circle(frame):
             radiusBk = int(radiusBk)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
-            #cv2.circle(side_mask, center, radius, np.array([0,0,255]), 10)
-            #cv2.rectangle(frame,center,(center[0]+240,center[1]+40),(0,255,0),3)
-            #cv2.imshow('mask', frame)#side_mask)
-            #cv2.imshow('mask', side_mask)
+            cv2.circle(side_mask, centerBk, radiusBk, np.array([0,0,255]), 10)
+            cv2.imshow('green mask', side_mask)
             #print 'center: ', center, 'radius: ', radius, ' found from side camera'
-            
-#            return center, radius
 
         else:
+            print 'no contours found for green'
             numberErrorsBk = numberErrorsBk + 1
-            #print 'Current number of back error frames is: ', numberErrorsBk, ' Out of: ', frameNum
-            #print 'Back percent error is: ', 100*float(numberErrorsBk)/frameNum
-            #cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
-            #cv2.imshow('mask', side_mask)
-        #cv2.imshow('mask', side_mask)
-#            return 0, 0
+    else:
+        print 'green string'
+
 
 
 def findFtFlagMarker(img):
@@ -231,12 +260,24 @@ while(cap.isOpened()):
     vlg = cv2.getTrackbarPos('V_low_green','greenHSVMask')
     hhg = cv2.getTrackbarPos('H_high_green','greenHSVMask')
     shg = cv2.getTrackbarPos('S_high_green','greenHSVMask')
-    vhg = cv2.getTrackbarPos('V_high_green','greenHSVMask')    
+    vhg = cv2.getTrackbarPos('V_high_green','greenHSVMask')  
+    
+    
+    hlr = cv2.getTrackbarPos('H_low_red','redHSVMask')
+    slr = cv2.getTrackbarPos('S_low_red','redHSVMask')
+    vlr = cv2.getTrackbarPos('V_low_red','redHSVMask')
+    hhr = cv2.getTrackbarPos('H_high_red','redHSVMask')
+    shr = cv2.getTrackbarPos('S_high_red','redHSVMask')
+    vhr = cv2.getTrackbarPos('V_high_red','redHSVMask')  
+        
     
     print 'vals: ', hhg, shg, vhg
     
     
-    make_image_mask_green(frame, hlg, slg, vlg, hhg, shg, vhg)
+    #make_image_mask_green(frame, hlg, slg, vlg, hhg, shg, vhg)
+    #make_image_mask_red(frame, hlr, slr, vlr, hhr, shr, vhr)
+    
+    get_green_circle(frame, hlr, slr, vlr, hhr, shr, vhr)
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
