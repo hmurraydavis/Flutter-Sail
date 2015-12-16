@@ -20,6 +20,19 @@ centerArrayA = []; centerArrayB = [] ## Front Flag (red marker)
 centerArrayX = []; centerArrayY = [] ## Back Flag (green marker)
 thetaFlagFt = []; thetaFlagbk = []; 
 
+
+def nothing(x):
+    pass
+
+cv2.namedWindow('greenHSVMask')
+# create trackbars for color change
+cv2.createTrackbar('H_low_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('S_low_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('V_low_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('H_high_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('S_high_green','greenHSVMask',0,255,nothing)
+cv2.createTrackbar('V_high_green','greenHSVMask',0,255,nothing)
+
 def posToTheta(i):
     angle = math.acos( (Lbk - (max(centerArrayX) - i) )/Lbk )
     print angle
@@ -48,7 +61,7 @@ def colorImgPreProcess(image):
     return image
 
 
-def make_image_mask_green(img):
+def make_image_mask_green(img, a=40, b=10, c=10, d=80, e=200, f=255):
     # B G R
     #lower_blue = np.array([10,70,10],  dtype=np.uint8)# np.array([60,30,55])
     #upper_blue = np.array([150,250,60],  dtype=np.uint8)
@@ -60,14 +73,17 @@ def make_image_mask_green(img):
     
     # sensitivity is a int, typically set to 15 - 20 
     greenSensitivity = 20
-    lower_bound = np.array([60 - greenSensitivity, 100, 100],  dtype=np.uint8)
-    upper_bound = np.array([60 + greenSensitivity, 255, 255],  dtype=np.uint8)
+#    lower_bound = np.array([60 - greenSensitivity, 10, 10],  dtype=np.uint8)
+#    upper_bound = np.array([60 + greenSensitivity, 200, 255],  dtype=np.uint8)
+    lower_bound = np.array([a, b, c],  dtype=np.uint8)
+    upper_bound = np.array([d, e, f],  dtype=np.uint8)
+    print 'upper_bound: ', upper_bound
 
 
     try:
         thresh = cv2.inRange(img, lower_bound, upper_bound)
         cv2.imshow('mask', thresh)
-        print type(thresh)
+        cv.ResizeWindow('mask', 60, 60)
         return thresh
     except:
         print "Fatal inRange error!"
@@ -209,7 +225,18 @@ cap = cv2.VideoCapture(filename)
 
 while(cap.isOpened()):
     ret, frame = cap.read()
-    findFtFlagMarker(frame)
+    #findFtFlagMarker(frame)
+    hlg = cv2.getTrackbarPos('H_low_green','greenHSVMask')
+    slg = cv2.getTrackbarPos('S_low_green','greenHSVMask')
+    vlg = cv2.getTrackbarPos('V_low_green','greenHSVMask')
+    hhg = cv2.getTrackbarPos('H_high_green','greenHSVMask')
+    shg = cv2.getTrackbarPos('S_high_green','greenHSVMask')
+    vhg = cv2.getTrackbarPos('V_high_green','greenHSVMask')    
+    
+    print 'vals: ', hhg, shg, vhg
+    
+    
+    make_image_mask_green(frame, hlg, slg, vlg, hhg, shg, vhg)
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
