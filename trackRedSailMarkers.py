@@ -50,14 +50,24 @@ def colorImgPreProcess(image):
 
 def make_image_mask_green(img):
     # B G R
-    lower_blue = np.array([10,70,10],  dtype=np.uint8)# np.array([60,30,55])
-    upper_blue = np.array([150,250,60],  dtype=np.uint8)
+    #lower_blue = np.array([10,70,10],  dtype=np.uint8)# np.array([60,30,55])
+    #upper_blue = np.array([150,250,60],  dtype=np.uint8)
+    
+    hsv_img = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
     
     # Threshold the HSV image to get only blue colors
-    img = colorImgPreProcess(img)
+    img = colorImgPreProcess(hsv_img)
+    
+    # sensitivity is a int, typically set to 15 - 20 
+    greenSensitivity = 20
+    lower_bound = np.array([60 - greenSensitivity, 100, 100],  dtype=np.uint8)
+    upper_bound = np.array([60 + greenSensitivity, 255, 255],  dtype=np.uint8)
+
+
     try:
-        thresh = cv2.inRange(img, lower_blue, upper_blue)
-        #cv2.imshow('mask', thresh)
+        thresh = cv2.inRange(img, lower_bound, upper_bound)
+        cv2.imshow('mask', thresh)
+        print type(thresh)
         return thresh
     except:
         print "Fatal inRange error!"
@@ -143,17 +153,21 @@ def get_green_circle(frame):
 #            return 0, 0
 
 
-
-##Open Video file:
-cap = cv2.VideoCapture(filename) 
-
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    get_green_circle(frame)
-    centerPBk, radiusPBk = centerBk, radiusBk
+def findFtFlagMarker(img):
     get_red_circle(frame)
     centerPFt, radiusPFt = centerFt, radiusFt
-    
+    if centerFt:
+        centerArrayA.append(centerFt[0])
+        centerArrayB.append(centerFt[1])
+    else: 
+        centerArrayA.append(centerPFt[0])
+        centerArrayB.append(centerPFt[1])      
+        
+        
+def findBkFlagMarker(img):
+    get_green_circle(frame)
+    centerPBk, radiusPBk = centerBk, radiusBk
+
     if centerBk: 
         centerArrayX.append(centerBk[0])
         centerArrayY.append(centerBk[1])
@@ -161,20 +175,20 @@ while(cap.isOpened()):
         'In P block. centerP is: ', centerPBk
         centerArrayX.append(centerPBk[0])
         centerArrayY.append(centerPBk[1])
-    if centerFt:
-        centerArrayA.append(centerFt[0])
-        centerArrayB.append(centerFt[1])
-    else: 
-        centerArrayA.append(centerPFt[0])
-        centerArrayB.append(centerPFt[1])        
+        
+        
+        
+##Open Video file:
+cap = cv2.VideoCapture(filename) 
 
-    #cv2.imshow('frame',frame)
+while(cap.isOpened()):
+    ret, frame = cap.read()
+    findFtFlagMarker(frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     frameNum =frameNum + 1
     ##print 'Frame num is: ', frameNum
     if frameNum >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
-        plt.plot(centerArrayX, label='1')
         ##Filter out extreme values: 
 #        centerArrayX = np.array(centerArrayX)
 #        plt.plot(centerArrayX, label='2')
@@ -194,11 +208,16 @@ while(cap.isOpened()):
         print '   ', 100*float(numberErrorsFt)/frameNum, ' % frames without a circle found'
                 
         ##Plot data!:
-        plt.plot(centerArrayX, label = 'Back Flag Angle', color='#AA3C39', linewidth=6)
-        plt.plot(centerArrayA, label = 'Front Flag Angle', color='#7A9E35', linewidth=6)
+        plt.plot(centerArrayX, centerArrayY, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
+        plt.plot(centerArrayA, centerArrayB, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
         plt.xlabel('Image Frame #', fontsize = 18)
         plt.ylabel('Angle (degrees)', fontsize = 18)
         plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+        
+##        plt.plot(centerArrayA, centerArrayX, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+##        plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
+##        plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
+##        plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
         plt.legend()
         plt.show()
         
