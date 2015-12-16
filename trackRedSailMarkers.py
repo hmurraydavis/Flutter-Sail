@@ -2,10 +2,13 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import pprint
-import time
 import math
+import pickle
+import scipy.stats as stats
 
-filename = 'Data1/t4.mp4'
+testNum = 4
+
+filename = 'Data1/t'+str(testNum)+'.mp4'
 
 numberErrorsBk = 0
 centerBk = 0; radiusBk = 0
@@ -32,8 +35,8 @@ shg = 190
 vhg = 135  
 
 
-hlr = 100
-slr = 0
+hlr = 104
+slr = 69
 vlr = 0
 hhr = 255
 shr = 255
@@ -163,10 +166,7 @@ def get_red_circle(frame, hlr, slr, vlr, hhr, shr, vhr):
             cv2.imshow('Red mask', side_mask)
 
         else:
-            numberErrors = numberErrors + 1
-            #print 'Current number of front error frames is: ', numberErrorsFt, ' Out of: ', frameNum
-            #print 'Front percent error is: ', 100*float(numberErrors)/frameNum
-            #cv2.circle(side_mask, centerFt, radiusFt, np.array([0,255,0]), 10)
+            numberErrorsFt = numberErrorsFt + 1
 
 
 
@@ -186,7 +186,7 @@ def get_green_circle(frame, hlg, slg, vlg, hhg, shg, vhg):
             radiusBk = int(radiusBk)
             side_mask = cv2.cvtColor(side_mask, cv2.COLOR_GRAY2RGB)
             
-            cv2.circle(side_mask, centerBk, radiusBk, np.array([0,0,255]), 10)
+            cv2.circle(side_mask, centerBk, radiusBk, np.array([0,255,0]), 10)
             cv2.imshow('green mask', side_mask)
             #print 'center: ', center, 'radius: ', radius, ' found from side camera'
 
@@ -198,8 +198,8 @@ def get_green_circle(frame, hlg, slg, vlg, hhg, shg, vhg):
 
 
 
-def findFtFlagMarker(img):
-    get_red_circle(frame)
+def findFtFlagMarker(frame, hlr, slr, vlr, hhr, shr, vhr):
+    get_red_circle(frame, hlr, slr, vlr, hhr, shr, vhr)
     centerPFt, radiusPFt = centerFt, radiusFt
     if centerFt:
         centerArrayA.append(centerFt[0])
@@ -209,8 +209,8 @@ def findFtFlagMarker(img):
         centerArrayB.append(centerPFt[1])      
         
         
-def findBkFlagMarker(img):
-    get_green_circle(frame)
+def findBkFlagMarker(frame, hlg, slg, vlg, hhg, shg, vhg):
+    get_green_circle(frame, hlg, slg, vlg, hhg, shg, vhg)
     centerPBk, radiusPBk = centerBk, radiusBk
 
     if centerBk: 
@@ -246,7 +246,7 @@ def plotXXPositions():
     plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
     plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 ##Open Video file:
@@ -254,6 +254,9 @@ cap = cv2.VideoCapture(filename)
 
 while(cap.isOpened()):
     ret, frame = cap.read()
+    height, width, channels = frame.shape
+    frame = frame[350:600, 0:width] # Crop from x, y, w, h -> 100, 200, 300, 400
+    
     #findFtFlagMarker(frame)
     hlg = cv2.getTrackbarPos('H_low_green','greenHSVMask')
     slg = cv2.getTrackbarPos('S_low_green','greenHSVMask')
@@ -269,22 +272,39 @@ while(cap.isOpened()):
     hhr = cv2.getTrackbarPos('H_high_red','redHSVMask')
     shr = cv2.getTrackbarPos('S_high_red','redHSVMask')
     vhr = cv2.getTrackbarPos('V_high_red','redHSVMask')  
-        
+
     
-    print 'vals: ', hhg, shg, vhg
-    
-    
+    ## Testing only, make image masks
     #make_image_mask_green(frame, hlg, slg, vlg, hhg, shg, vhg)
     #make_image_mask_red(frame, hlr, slr, vlr, hhr, shr, vhr)
     
-    get_green_circle(frame, hlr, slr, vlr, hhr, shr, vhr)
+    ## Testing only, only find circles
+    #get_red_circle(frame, hlr, slr, vlr, hhr, shr, vhr)
+    #get_green_circle(frame, hlg, slg, vlg, hhg, shg, vhg)
+    
+    ## Production Use!!!
+    findFtFlagMarker(frame, hlr, slr, vlr, hhr, shr, vhr)
+    findBkFlagMarker(frame, hlg, slg, vlg, hhg, shg, vhg)
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+        
     frameNum =frameNum + 1
-    ##print 'Frame num is: ', frameNum
     if frameNum >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
-        ##Filter out extreme values: 
+        ## Now that we're done, let's save the data!
+        pickle.dump(centerArrayX, open( "Xt"+str(testNum)+".p", "wb" ) )
+        pickle.dump(centerArrayY, open( "Yt"+str(testNum)+".p", "wb" ) )
+        pickle.dump(centerArrayA, open( "At"+str(testNum)+".p", "wb" ) )
+        pickle.dump(centerArrayB, open( "Bt"+str(testNum)+".p", "wb" ) )
+        
+        
+##        ##Filter out extreme values: 
+##        stdx = stats.tstd(centerArrayX)
+##        meanx = stats.tmean(centerArrayX)
+##        for x in centerArrayX:
+##            if 
+
+
 #        centerArrayX = np.array(centerArrayX)
 #        plt.plot(centerArrayX, label='2')
 #        centerArrayX = reject_outliers(centerArrayX)
@@ -292,8 +312,8 @@ while(cap.isOpened()):
 
 
         printSummaryStats()
-        #plotBothFlagPositions()
-        #plotXXPositions()
+        plotBothFlagPositions()
+        plotXXPositions()
 
         break
 
