@@ -22,17 +22,24 @@ centerArrayY = pickle.load( open( "Yt"+str(testNum)+".p", "rb" ) )
 
 
 ## delete when on a real computer and replace with importing the correct plotting function
-def plotBothFlagPositions():
+def plotBothFlagPositions(a, b, x, y):
     ##Plot data!:
-    plt.plot(centerArrayX, centerArrayY, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
-    plt.plot(centerArrayA, centerArrayB, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
+    plt.plot(x, y, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
+    plt.plot(a, b, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
     plt.xlabel('Image Frame #', fontsize = 18)
     plt.ylabel('Angle (degrees)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
     plt.legend()
     plt.show()
     
-## delete when on a real computer and replace with importing the correct plotting function
+# ## delete when on a real computer and replace with importing the correct plotting function
+# def plotXXPositions(a, x):
+    # plt.plot(a, x, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+    # plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
+    # plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
+    # plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+    # #plt.legend()
+    # plt.show()
 def plotXXPositions():
     plt.plot(centerArrayA, centerArrayX, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
     plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
@@ -40,11 +47,45 @@ def plotXXPositions():
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
     #plt.legend()
     plt.show()
+
+def filterByRemoval(data, ydata, time):
+    std = stats.tstd(data)
+    mean = stats.tmean(data)
+    for i, x in enumerate(data):
+        if x > mean + (1*std):
+            data.remove(x)
+            del ydata[i]
+            time[i] = 'x'
+        elif x < mean - (2*std):
+            data.remove(x)
+            del ydata[i]
+            time[i] = 'x'
+    time.remove('x')
+    return data, ydata, time
+    
+def filterByMutualRemoval(data1, data2):
+    std1 = stats.tstd(data1)
+    mean1 = stats.tmean(data1)
+    
+    std2 = stats.tstd(data2)
+    mean2 = stats.tmean(data2)
+    
+    return data1, data2
 	
 	
+timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
+
+##Filter out extreme values: 
+a, b, ta = filterByRemoval(centerArrayA, centerArrayB, timeArray)
+#b, tb = filterByRemoval(centerArrayB, timeArray)
+x, y, tx = filterByRemoval(centerArrayX, centerArrayY, timeArray)
+#y, ty = filterByRemoval(centerArrayY, timeArray)
+
+am, xm = filterByMutualRemoval(centerArrayA, centerArrayX)
+
 	
 
-plotBothFlagPositions()
+plotBothFlagPositions(a, b, x, y)
+#plotXXPositions(centerArrayA, centerArrayX)#(xm, am)
 plotXXPositions()
-
 
