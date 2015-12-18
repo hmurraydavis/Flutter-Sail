@@ -34,6 +34,9 @@ def plotBothFlagPositions(a, b, x, y):
 # ## delete when on a real computer and replace with importing the correct plotting function
 def plotXXPositions(a, x):
     plt.plot(a, x, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+    slope, intercept, __r_value, __p_value, __std_err = stats.linregress(a, x)
+    rangeBestFit = np.array ( range(min(a), max(a)) )
+    plt.plot(rangeBestFit, rangeBestFit*slope + intercept, 'b--', linewidth=4, alpha = .6)
     plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
     plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
@@ -121,7 +124,3 @@ print 'lens: ', len(centerArrayA), len(am), len(centerArrayX), len(xm)
 
 plt.clf()
 plotXXPositions(xm, am)
-plt.clf()
-plotXXPositions(centerArrayX, centerArrayA)
-
-
