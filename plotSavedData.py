@@ -20,7 +20,6 @@ centerArrayB = pickle.load( open( "Bt"+str(testNum)+".p", "rb" ) )
 centerArrayX = pickle.load( open( "Xt"+str(testNum)+".p", "rb" ) )
 centerArrayY = pickle.load( open( "Yt"+str(testNum)+".p", "rb" ) )
 
-print 'lengths: ', len(centerArrayA), len(centerArrayX)
 
 def plotBothFlagPositions(a, b, x, y):
     ##Plot data!:
@@ -55,12 +54,10 @@ def filterByRemoval(data, ydata, time):
 
     for i, x in enumerate(data):
         if x > mean + (1*std):
-            print 'i is: ', i , ' len ydat is: ', len(ydata)
             data[i] = 'x'           
             ydata[i] = 'x'
             time[i] = 'x'
         elif x < mean - (2*std):
-            print 'i is: ', i , ' len ydat is: ', len(ydata)
             data[i] = 'x'
             ydata[i] = 'x'
             time[i] = 'x'
@@ -70,11 +67,29 @@ def filterByRemoval(data, ydata, time):
     return data, ydata, time
     
 def filterByMutualRemoval(data1, data2):
+    nSTD = 1
+
     std1 = stats.tstd(data1)
     mean1 = stats.tmean(data1)
     
     std2 = stats.tstd(data2)
     mean2 = stats.tmean(data2)
+    
+    for i, value in enumerate(data1): 
+        if value > mean1 + (nSTD*std1):
+            del data1[i]
+            del data2[i]
+        elif value < mean1 - (nSTD*std1):
+            del data1[i]
+            del data2[i]
+            
+    for i, value in enumerate(data2): 
+        if value > mean2 + (nSTD*std2):
+            del data1[i]
+            del data2[i]
+        elif value < mean2 - (nSTD*std2):
+            del data1[i]
+            del data2[i]
     
     return data1, data2
 	
@@ -84,31 +99,21 @@ timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
 
 
 ##Filter out extreme values: 
-a = centerArrayA
-
-a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray)
-
-print '\n A_cent ',len(centerArrayA)
-print 'data ',len(a)
-print 'X_cent ',len(centerArrayX)
+a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray[:])
 
 
-#b, tb = filterByRemoval(centerArrayB, timeArray)
-x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray)
-#y, ty = filterByRemoval(centerArrayY, timeArray)
-
-#print 'lengths: ', len(centerArrayA), len(centerArrayX)
+#b, tb = filterByRemoval(centerArrayB[:], timeArray[:])
+x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray[:])
+#y, ty = filterByRemoval(centerArrayY[:], timeArray[:])
 
 
 
-pprint.pprint(centerArrayA)
 
-print 'lengths B4 filter: ', len(centerArrayA), len(centerArrayX)
-am, xm = filterByMutualRemoval(centerArrayA, centerArrayX)
+am, xm = filterByMutualRemoval(centerArrayA[:], centerArrayX[:])
 
 	
 
 #plotBothFlagPositions(a, b, x, y)
-#plotXXPositions(xm, am)
+plotXXPositions(xm, am)
 
 
