@@ -8,22 +8,16 @@ import scipy.stats as stats
 #from trackRedSailMarkers import plotXXPositions
 
 
-
-
-testNum = 24
-
-filename = 'Data1/t'+str(testNum)+'.mp4'
+#testNum = 6
+testList = [22,24,25,28,39,42,4,6]
 
 save = True
 
 
-centerArrayA = pickle.load( open( "At"+str(testNum)+".p", "rb" ) )
-centerArrayB = pickle.load( open( "Bt"+str(testNum)+".p", "rb" ) )
-centerArrayX = pickle.load( open( "Xt"+str(testNum)+".p", "rb" ) )
-centerArrayY = pickle.load( open( "Yt"+str(testNum)+".p", "rb" ) )
 
 
-def plotBothFlagPositions(a, b, x, y):
+
+def plotBothFlagPositions(a, b, x, y, testNum):
     ##Plot data!:
     plt.plot(x, y, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
     plt.plot(a, b, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
@@ -36,8 +30,8 @@ def plotBothFlagPositions(a, b, x, y):
     elif save == True: 
         plt.savefig('plots/t'+str(testNum)+'_bothPosPlot.png', bbox_inches='tight')
     
-# ## delete when on a real computer and replace with importing the correct plotting function
-def plotXXPositions(a, x):
+
+def plotXXPositions(a, x, testNum):
     plt.plot(a, x, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
     slope, intercept, __r_value, __p_value, __std_err = stats.linregress(a, x)
     rangeBestFit = np.array ( range(min(a), max(a)) )
@@ -50,12 +44,18 @@ def plotXXPositions(a, x):
         plt.show()
     elif save == True: 
         plt.savefig('plots/t'+str(testNum)+'_xxPlot.png', bbox_inches='tight')
+    
+    plt.clf()
+    plt.plot(a, x, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+    plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
+    plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
+    plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+    #plt.legend()
+    if save == False:
+        plt.show()
+    elif save == True: 
+        plt.savefig('plots/t'+str(testNum)+'_xxPlot_noBestFit.png', bbox_inches='tight')        
 
-
-#plotXXPositions(centerArrayA,centerArrayX)
-
-
-## delete when on a real computer and replace with importing the correct plotting function
 
 
 
@@ -107,23 +107,31 @@ def filterByMutualRemoval(data1, data2):
             y.append(data2[i])
                     
     return x,y
+    
+def remakeAllPlots():
+    for testNum in testList:	
+        centerArrayA = pickle.load( open( "At"+str(testNum)+".p", "rb" ) )
+        centerArrayB = pickle.load( open( "Bt"+str(testNum)+".p", "rb" ) )
+        centerArrayX = pickle.load( open( "Xt"+str(testNum)+".p", "rb" ) )
+        centerArrayY = pickle.load( open( "Yt"+str(testNum)+".p", "rb" ) )
 	
-	
-timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
+        timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
 
-## x is back flag
+        ## x is back flag
 
-##Filter out extreme values: 
-a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray[:])
-x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray[:])
+        ##Filter out extreme values: 
+        a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray[:])
+        x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray[:])
 
-am, xm = filterByMutualRemoval(centerArrayA[:], centerArrayX[:])
+        am, xm = filterByMutualRemoval(centerArrayA[:], centerArrayX[:])
 
-pprint.pprint( zip(a, b, x, y) )
+        #pprint.pprint( zip(a, b, x, y) )
 
-plt.clf()	
-plotBothFlagPositions(a, b, x, y)
+        plt.clf()
+        plotBothFlagPositions(a, b, x, y, testNum)
 
 
-plt.clf()
-plotXXPositions(xm, am)
+        plt.clf()
+        plotXXPositions(xm, am, testNum)
+        
+remakeAllPlots()
