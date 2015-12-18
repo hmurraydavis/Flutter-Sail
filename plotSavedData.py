@@ -67,7 +67,10 @@ def filterByRemoval(data, ydata, time):
     return data, ydata, time
     
 def filterByMutualRemoval(data1, data2):
-    nSTD = .6
+    nSTD = 1
+    
+    x=[]
+    y=[]
 
     std1 = stats.tstd(data1)
     mean1 = stats.tmean(data1)
@@ -79,28 +82,19 @@ def filterByMutualRemoval(data1, data2):
     print 'm2, std2: ', mean2, std2
     
     for i, value in enumerate(data1): 
-        if value > mean1 + (nSTD*std1):
-            print 'c1: ', data1[i], data2[i]
-            del data1[i]
-            del data2[i]
-        elif value < mean1 - (nSTD*std1):
-            print 'c2: ', data1[i], data2[i]
-            del data1[i]
-            del data2[i]
-            
-    print 't2-t: ', mean2 + (nSTD*std2)
-    print 't2-b ', mean2 - (nSTD*std2)
-    for i, value in enumerate(data2): 
-        if value > mean2 + (nSTD*std2):
-            print 'c3: ', data1[i], data2[i]
-            del data1[i]
-            del data2[i]
+        if (data1[i] > mean1 + (nSTD*std1)):
+            pass
+        elif (data1[i] < mean1 - (nSTD*std1)):
+            pass
+        elif data2[i] > mean2 + (nSTD*std2):
+            pass           
         elif value < mean2 - (nSTD*std2):
-            print 'c4: ', data1[i], data2[i]
-            del data1[i]
-            del data2[i]
-    
-    return data1, data2
+            pass
+        else:
+            x.append(data1[i])
+            y.append(data2[i])
+                    
+    return x,y
 	
 	
 timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
