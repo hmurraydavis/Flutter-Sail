@@ -14,6 +14,8 @@ testNum = 24
 
 filename = 'Data1/t'+str(testNum)+'.mp4'
 
+save = True
+
 
 centerArrayA = pickle.load( open( "At"+str(testNum)+".p", "rb" ) )
 centerArrayB = pickle.load( open( "Bt"+str(testNum)+".p", "rb" ) )
@@ -29,7 +31,10 @@ def plotBothFlagPositions(a, b, x, y):
     plt.ylabel('Angle (degrees)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
     plt.legend()
-    plt.show()
+    if save == False:
+        plt.show()
+    elif save == True: 
+        plt.savefig('plots/t'+str(testNum)+'_bothPosPlot.png', bbox_inches='tight')
     
 # ## delete when on a real computer and replace with importing the correct plotting function
 def plotXXPositions(a, x):
@@ -41,7 +46,10 @@ def plotXXPositions(a, x):
     plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
     #plt.legend()
-    plt.show()
+    if save == False:
+        plt.show()
+    elif save == True: 
+        plt.savefig('plots/t'+str(testNum)+'_xxPlot.png', bbox_inches='tight')
 
 
 #plotXXPositions(centerArrayA,centerArrayX)
@@ -64,9 +72,10 @@ def filterByRemoval(data, ydata, time):
             data[i] = 'x'
             ydata[i] = 'x'
             time[i] = 'x'
-    time.remove('x')
-    data.remove('x')
-    ydata.remove('x')
+    ##a[:] = [x for x in a if x != [1, 1]]
+    time[:] = [x for x in time if x != 'x']
+    data[:]  = [x for x in data if x != 'x']
+    ydata[:] = [x for x in ydata if x != 'x']
     return data, ydata, time
     
 def filterByMutualRemoval(data1, data2):
@@ -106,21 +115,15 @@ timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
 
 ##Filter out extreme values: 
 a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray[:])
-
-
-#b, tb = filterByRemoval(centerArrayB[:], timeArray[:])
 x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray[:])
-#y, ty = filterByRemoval(centerArrayY[:], timeArray[:])
-
-
-
 
 am, xm = filterByMutualRemoval(centerArrayA[:], centerArrayX[:])
 
-	
-#pprint.pprint( zip(am,xm))
-#plotBothFlagPositions(a, b, x, y)
-print 'lens: ', len(centerArrayA), len(am), len(centerArrayX), len(xm)
+pprint.pprint( zip(a, b, x, y) )
+
+plt.clf()	
+plotBothFlagPositions(a, b, x, y)
+
 
 plt.clf()
 plotXXPositions(xm, am)
