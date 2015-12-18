@@ -67,7 +67,7 @@ def filterByRemoval(data, ydata, time):
     return data, ydata, time
     
 def filterByMutualRemoval(data1, data2):
-    nSTD = 1
+    nSTD = .6
 
     std1 = stats.tstd(data1)
     mean1 = stats.tmean(data1)
@@ -75,19 +75,28 @@ def filterByMutualRemoval(data1, data2):
     std2 = stats.tstd(data2)
     mean2 = stats.tmean(data2)
     
+    print 'm1, std1: ', mean1, std1
+    print 'm2, std2: ', mean2, std2
+    
     for i, value in enumerate(data1): 
         if value > mean1 + (nSTD*std1):
+            print 'c1: ', data1[i], data2[i]
             del data1[i]
             del data2[i]
         elif value < mean1 - (nSTD*std1):
+            print 'c2: ', data1[i], data2[i]
             del data1[i]
             del data2[i]
             
+    print 't2-t: ', mean2 + (nSTD*std2)
+    print 't2-b ', mean2 - (nSTD*std2)
     for i, value in enumerate(data2): 
         if value > mean2 + (nSTD*std2):
+            print 'c3: ', data1[i], data2[i]
             del data1[i]
             del data2[i]
         elif value < mean2 - (nSTD*std2):
+            print 'c4: ', data1[i], data2[i]
             del data1[i]
             del data2[i]
     
@@ -96,7 +105,7 @@ def filterByMutualRemoval(data1, data2):
 	
 timeArray = range(0, len(centerArrayA)) #np.arange(0, len(centerArrayA), 1)
 
-
+## x is back flag
 
 ##Filter out extreme values: 
 a, b, ta = filterByRemoval(centerArrayA[:], centerArrayB[:], timeArray[:])
@@ -112,8 +121,13 @@ x, y, tx = filterByRemoval(centerArrayX[:], centerArrayY[:], timeArray[:])
 am, xm = filterByMutualRemoval(centerArrayA[:], centerArrayX[:])
 
 	
-
+#pprint.pprint( zip(am,xm))
 #plotBothFlagPositions(a, b, x, y)
+print 'lens: ', len(centerArrayA), len(am), len(centerArrayX), len(xm)
+
+plt.clf()
 plotXXPositions(xm, am)
+plt.clf()
+plotXXPositions(centerArrayX, centerArrayA)
 
 
