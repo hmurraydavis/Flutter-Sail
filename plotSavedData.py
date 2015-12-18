@@ -54,7 +54,19 @@ def plotXXPositions(a, x, testNum):
     if save == False:
         plt.show()
     elif save == True: 
-        plt.savefig('plots/t'+str(testNum)+'_xxPlot_noBestFit.png', bbox_inches='tight')        
+        plt.savefig('plots/t'+str(testNum)+'_xxPlot_noBestFit.png', bbox_inches='tight')  
+        
+def plotPoincaraes(a, x, testNum):
+    for i in range(len(a)-1):
+        plt.plot(a[i], a[i+1], marker='o', markersize=10, alpha=.3, linestyle='None', label = 'Front Flag', color='#7A9E35')
+        plt.plot(x[i], x[i+1], marker='o', markersize=10, alpha=.3, linestyle='None', label = 'Back Flag Position', color='#AA3C39')
+    plt.xlabel('$t$ (pixels)', fontsize = 18)
+    plt.ylabel('$t+1$ (pixels)', fontsize = 18)
+    plt.title('Poincare Plot for Flapping Sails', fontsize = 20)
+    if save == False:
+        plt.show()
+    elif save == True: 
+        plt.savefig('plots/t'+str(testNum)+'_poincare.png', bbox_inches='tight') 
 
 
 
@@ -128,10 +140,12 @@ def remakeAllPlots():
         #pprint.pprint( zip(a, b, x, y) )
 
         plt.clf()
-        plotBothFlagPositions(a, b, x, y, testNum)
+        #plotBothFlagPositions(a, b, x, y, testNum)
 
 
         plt.clf()
-        plotXXPositions(xm, am, testNum)
+        #plotXXPositions(xm, am, testNum)
+        
+        plotPoincaraes(xm, am, testNum)
         
 remakeAllPlots()
