@@ -6,7 +6,7 @@ import math
 import pickle
 import scipy.stats as stats
 
-testNum = 4
+testNum = 29
 
 filename = 'Data1/t'+str(testNum)+'.mp4'
 
@@ -27,17 +27,18 @@ thetaFlagFt = []; thetaFlagbk = [];
 def nothing(x):
     pass
     
-hlg = 0
-slg = 37
-vlg = 60
-hhg = 142
-shg = 190
-vhg = 135  
+#Green
+hlg = 40
+slg = 45
+vlg = 80
+hhg = 100
+shg = 255
+vhg = 255  
 
-
-hlr = 104
-slr = 69
-vlr = 0
+#Red
+hlr = 150
+slr = 45
+vlr = 80
 hhr = 255
 shr = 255
 vhr = 255
@@ -233,20 +234,22 @@ def printSummaryStats():
           
 def plotBothFlagPositions():
     ##Plot data!:
-    plt.plot(centerArrayX, centerArrayY, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#AA3C39', linewidth=6)
-    plt.plot(centerArrayA, centerArrayB, marker='o', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#7A9E35', linewidth=6)
-    plt.xlabel('Image Frame #', fontsize = 18)
-    plt.ylabel('Angle (degrees)', fontsize = 18)
+    plt.plot(centerArrayX, centerArrayY, marker='.', markersize=10, alpha=.7, linestyle='None', label = 'Back Flag Position', color='#7A9E35', linewidth=6)
+    plt.plot(centerArrayA, centerArrayB, marker='.', markersize=10, alpha=.7, linestyle='None', label = 'Front Flag Position', color='#AA3C39', linewidth=6)
+    plt.xlabel('X Position (pixels)', fontsize = 18)
+    plt.ylabel('Y Position (pixels)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
+    plt.axis('equal')   #HALIE I ADDED THESE SO THAT IT WOULD BE EASIER TO SEE CIRCLES, DELETE IF YOU WANT
     plt.legend()
     plt.show()
     
 def plotXXPositions():
-    plt.plot(centerArrayA, centerArrayX, marker='o', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
-    plt.xlabel('Front Flag Position (pixels)', fontsize = 18)
-    plt.ylabel('Back Flag Position (pixels)', fontsize = 18)
+    plt.plot(centerArrayB, centerArrayY, marker='.', markersize=10, alpha=.7, linestyle='None', color='#7A9E35', linewidth=6)
+    plt.xlabel('Front Flag Y Position (pixels)', fontsize = 18)
+    plt.ylabel('Back Flag Y Position (pixels)', fontsize = 18)
     plt.title('Position of Fluttering Sail Through Time', fontsize = 20)
     #plt.legend()
+    plt.axis('equal') #HALIE I ADDED THESE SO THAT IT WOULD BE EASIER TO SEE CIRCLES, DELETE IF YOU WANT
     plt.show()
 
 ##Open Video file:
@@ -255,7 +258,8 @@ cap = cv2.VideoCapture(filename)
 while(cap.isOpened()):
     ret, frame = cap.read()
     height, width, channels = frame.shape
-    frame = frame[350:600, 0:width] # Crop from x, y, w, h -> 100, 200, 300, 400
+    frame = frame[450:550, 150:width-300] # Crop from x, y, w, h -> 100, 200, 300, 400
+    cv2.imshow('Cropped image', frame)
     
     #findFtFlagMarker(frame)
     hlg = cv2.getTrackbarPos('H_low_green','greenHSVMask')

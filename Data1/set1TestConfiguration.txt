@@ -1,0 +1,102 @@
+tests 2 through 12:
+	6.5 in along wind tunnel
+	4.25 in across wind tunnel
+t2: 4htz, 100 rpm
+t3: 3htz, 70 rpm, second flag stalled
+t4: 5 htz, 130 rpm 
+t5: 6 htz, 160 rpm 
+t6: 7 htz, 190 rpm, instability begins
+t7: 8 htz, 220 rpm 
+t8: 9 htz, 250 rpm, more extreme instability
+t9: scratch/repete of t8
+t10: 10 htz, 280 rpm
+t11: 11 htz, 310 rpm, audible instability
+t12: 12 htz, 350 rpm
+
+tests 13 through 21: inline close
+	8 in along wind tunnel
+	0 in along wind tunnel
+t13: 3 htz, 70 rpm
+t14: 3 htz, 70 rpm, repete of t13
+t15: 4 htz, 100 rpm
+t16: 5 htz, 130 rpm
+t17: 6 htz, 160 rpm
+t18: 7 htz, 190 rpm
+t19: 8 htz, 220 rpm, second flag becomes unstable
+t20: 9 htz, 250 rpm
+t21: 10 htz, 280 rpm
+
+tests 22 through 29: 
+	12 in along wind tunnel
+	0 in across wind tunnel
+t22: 3 htz, 70 rpm
+t23: 4 htz, 100 rpm
+t24: 5 htz, 130 rpm
+t25: 6htz, 160 rpm
+t26: 7 htz, 190 rpm
+t27: 8 htz, 220 rpm
+t28: 9 htz, 250 rpm
+t29: 10 htz, 280 rpm, very begining of audible instability
+
+tests 30 through 37: 
+	16 in across wind tunnel
+	0 in across wind tunnel
+t30: 3 htz, 70 rpm
+t31: 4 htz, 100 rpm
+t32: 5 htz, 130 rpm
+t33: 6 htz, 160 rpm
+t34: 7 htz, 190 rpm
+t35: 8 htz, 220 rpm
+t36: 9 htz, 250 rpm
+t37: 10 htz, 280 rpm
+
+tests 38 through : 
+	10 in along
+	4 in across
+t38: 3 htz, 70 rpm, got second flag up and stable
+t39: 4 htz, 100 rpm
+t40: 5 htz, 130 rpm
+t41: 6 htz, 160 rpm
+t42: 7 htz, 190 rpm
+t43: 8 htz, 220 rpm
+t44: 9 htz, 250 rpm
+t45: 10 htz, 280 rpm
+t46: 4 htz, 100 rpm only back flag flaps
+t47: 3 htz
+t48: 4 htz, front flag transitions up first, then both come up
+
+tests 49 through 56: 
+	18 in along
+	4 in across
+t49: 3 htz, 
+t50: 4 htz
+t51: 5 htz
+t52: 6 htz
+t53: 7 htz
+t54: 8 htz
+t55: 9 htz
+t56: 10 htz
+
+tests 57 through 65:
+	10 in along
+	2 in across
+t57: 3 htz
+t58: 4 htz
+t59: 5 htz
+t60: 6 htz
+t61: 6 htz, repete of t60
+t62: 7 htz
+t63: 8 htz
+t64: 9 htz
+t65: 10 htz
+
+tests 66 through 73: 
+t66: 3 htz
+t67: 4 htz
+t68: 5 htz
+t69: 6 htz
+t70: 7 htz
+t71: 8 htz
+t72: 9 htz
+t73: 10 htz
+

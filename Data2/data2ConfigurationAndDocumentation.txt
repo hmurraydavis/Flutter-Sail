@@ -1,0 +1,25 @@
+tests 1 through 9: 
+	10 in along
+	0 in across
+t1: 3 htz
+t2: 4 htz
+t3: 5 htz
+t4: 6 htz
+t5: 7 htz
+t6: 8 htz
+t7: 9 htz
+t8: 9 htz repete 
+t9: 10 htz
+
+tests 10 through :
+	18 in along
+	0 in across
+t10: 3 htz
+t11: 4 htz
+t12: 5 htz
+t13: 6 htz
+t14: 7 htz
+t15: 8 htz
+t16: 9 htz
+t17: 10 htz
+
